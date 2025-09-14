@@ -126,6 +126,15 @@ func (s *Server) servePacket(pc net.PacketConn) error {
 	for {
 		select {
 		case addr := <-closeCh:
+			conn, ok := udpConns[addr]
+			if ok {
+				// This will abort any active Read() from another goroutine and return EOF
+				close(conn.readCh)
+				// Drain pending packets to ensure we release buffers back to the pool
+				for pkt := range conn.readCh {
+					udpBufPool.Put(pkt.pooledBuf)
+				}
+			}
 			// UDP connection is closed (either implicitly through timeout or by
 			// explicit call to Close()).
 			delete(udpConns, addr)
@@ -317,7 +326,6 @@ func (pc *packetConn) Read(b []byte) (n int, err error) {
 			// next loop will run. Don't call Read as that will reset the idle timer.
 		case <-pc.idleTimer.C:
 			done = true
-			break
 		}
 	}
 	// Idle timeout simulates socket closure.
@@ -332,7 +340,7 @@ func (pc *packetConn) Read(b []byte) (n int, err error) {
 }
 
 func (pc *packetConn) Write(b []byte) (n int, err error) {
-	return pc.PacketConn.WriteTo(b, pc.addr)
+	return pc.WriteTo(b, pc.addr)
 }
 
 func (pc *packetConn) Close() error {
@@ -340,14 +348,9 @@ func (pc *packetConn) Close() error {
 		udpBufPool.Put(pc.lastPacket.pooledBuf)
 		pc.lastPacket = nil
 	}
-	// This will abort any active Read() from another goroutine and return EOF
-	close(pc.readCh)
-	// Drain pending packets to ensure we release buffers back to the pool
-	for pkt := range pc.readCh {
-		udpBufPool.Put(pkt.pooledBuf)
-	}
 	// We may have already done this earlier in Read(), but just in case
 	// Read() wasn't being called, (re-)notify server loop we're closed.
+	// Server loop is responsible to close readCh to abort Read() to avoid race.
 	pc.closeCh <- pc.addr.String()
 	// We don't call net.PacketConn.Close() here as we would stop the UDP
 	// server.
@@ -357,7 +360,7 @@ func (pc *packetConn) Close() error {
 func (pc *packetConn) RemoteAddr() net.Addr { return pc.addr }
 
 var udpBufPool = sync.Pool{
-	New: func() interface{} {
+	New: func() any {
 		// Buffers need to be as large as the largest datagram we'll consume, because
 		// ReadFrom() can't resume partial reads.  (This is standard for UDP
 		// sockets on *nix.)  So our buffer sizes are 9000 bytes to accommodate

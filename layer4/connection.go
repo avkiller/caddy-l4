@@ -37,7 +37,7 @@ func WrapConnection(underlying net.Conn, buf []byte, logger *zap.Logger) *Connec
 	repl.Set("l4.conn.wrap_time", time.Now().UTC())
 
 	ctx := context.Background()
-	ctx = context.WithValue(ctx, VarsCtxKey, make(map[string]interface{}))
+	ctx = context.WithValue(ctx, VarsCtxKey, make(map[string]any))
 	ctx = context.WithValue(ctx, ReplacerCtxKey, repl)
 
 	return &Connection{
@@ -75,8 +75,10 @@ type Connection struct {
 	bytesRead, bytesWritten uint64
 }
 
-var ErrConsumedAllPrefetchedBytes = errors.New("consumed all prefetched bytes")
-var ErrMatchingBufferFull = errors.New("matching buffer is full")
+var (
+	ErrConsumedAllPrefetchedBytes = errors.New("consumed all prefetched bytes")
+	ErrMatchingBufferFull         = errors.New("matching buffer is full")
+)
 
 // GetContext returns cx.Context,
 // so that caddytls.MatchServerNameRE.Match() could obtain this context without importing layer4.
@@ -111,14 +113,14 @@ func (cx *Connection) Read(p []byte) (n int, err error) {
 	// buffer has been "depleted" so read from
 	// underlying connection
 	n, err = cx.Conn.Read(p)
-	cx.bytesRead += uint64(n)
+	cx.bytesRead += uint64(n) //nolint:gosec // disable G115
 
 	return
 }
 
 func (cx *Connection) Write(p []byte) (n int, err error) {
 	n, err = cx.Conn.Write(p)
-	cx.bytesWritten += uint64(n)
+	cx.bytesWritten += uint64(n) //nolint:gosec // disable G115
 	return
 }
 
@@ -159,7 +161,7 @@ func (cx *Connection) prefetch() (err error) {
 			cx.buf = append(cx.buf, tmp[:n]...)
 		}
 
-		cx.bytesRead += uint64(n)
+		cx.bytesRead += uint64(n) //nolint:gosec // disable G115
 
 		if err != nil {
 			return err
@@ -194,8 +196,8 @@ func (cx *Connection) unfreeze() {
 // SetVar sets a value in the context's variable table with
 // the given key. It overwrites any previous value with the
 // same key.
-func (cx *Connection) SetVar(key string, value interface{}) {
-	varMap, ok := cx.Context.Value(VarsCtxKey).(map[string]interface{})
+func (cx *Connection) SetVar(key string, value any) {
+	varMap, ok := cx.Context.Value(VarsCtxKey).(map[string]any)
 	if !ok {
 		return
 	}
@@ -205,8 +207,8 @@ func (cx *Connection) SetVar(key string, value interface{}) {
 // GetVar gets a value from the context's variable table with
 // the given key. It returns the value if found, and true if
 // it found a value with that key; false otherwise.
-func (cx *Connection) GetVar(key string) interface{} {
-	varMap, ok := cx.Context.Value(VarsCtxKey).(map[string]interface{})
+func (cx *Connection) GetVar(key string) any {
+	varMap, ok := cx.Context.Value(VarsCtxKey).(map[string]any)
 	if !ok {
 		return nil
 	}
@@ -242,7 +244,7 @@ const prefetchChunkSize = 2048
 const MaxMatchingBytes = 8 * 1024
 
 var bufPool = sync.Pool{
-	New: func() interface{} {
+	New: func() any {
 		return make([]byte, 0, prefetchChunkSize)
 	},
 }
