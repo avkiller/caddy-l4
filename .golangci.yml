@@ -84,7 +84,7 @@ formatters:
       sections:
         - standard # Standard section: captures all standard packages.
         - default # Default section: contains all imports that could not be matched to another section type.
-        - prefix(github.com/mholt/caddy-l4) # Custom section: groups all imports with the specified Prefix.
+        - prefix(github.com/avkiller/caddy-l4) # Custom section: groups all imports with the specified Prefix.
       custom-order: true
   exclusions:
     generated: lax

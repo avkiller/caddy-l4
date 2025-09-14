@@ -35,8 +35,8 @@ import (
 	"github.com/caddyserver/caddy/v2/modules/caddytls"
 	"github.com/quic-go/quic-go"
 
-	"github.com/mholt/caddy-l4/layer4"
-	"github.com/mholt/caddy-l4/modules/l4tls"
+	"github.com/avkiller/caddy-l4/layer4"
+	"github.com/avkiller/caddy-l4/modules/l4tls"
 )
 
 func init() {

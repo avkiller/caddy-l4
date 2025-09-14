@@ -9,7 +9,7 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/mholt/caddy-l4/layer4"
+	"github.com/avkiller/caddy-l4/layer4"
 )
 
 var (

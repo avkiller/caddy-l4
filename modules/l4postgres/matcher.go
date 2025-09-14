@@ -24,7 +24,7 @@ import (
 	"github.com/caddyserver/caddy/v2"
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
 
-	"github.com/mholt/caddy-l4/layer4"
+	"github.com/avkiller/caddy-l4/layer4"
 )
 
 func init() {
@@ -167,7 +167,7 @@ func (m *MatchPostgres) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 
 //Refs
 //
-// https://github.com/mholt/caddy-l4/blob/master/modules/l4ssh/matcher.go
+// https://github.com/avkiller/caddy-l4/blob/master/modules/l4ssh/matcher.go
 // https://github.com/rueian/pgbroker/blob/master/message/startup_message.go
 // https://github.com/traefik/traefik/blob/master/pkg/server/router/tcp/postgres.go
 // https://ivdl.co.za/2024/03/02/pretending-to-be-postgresql-part-one-1/

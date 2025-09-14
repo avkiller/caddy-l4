@@ -25,11 +25,11 @@ import (
 	"github.com/caddyserver/caddy/v2"
 	"go.uber.org/zap"
 
-	"github.com/mholt/caddy-l4/layer4"
+	"github.com/avkiller/caddy-l4/layer4"
 )
 
 // Setup dummy structs for test cases as in
-// https://github.com/mholt/caddy-l4/blob/master/layer4/matchers_test.go
+// https://github.com/avkiller/caddy-l4/blob/master/layer4/matchers_test.go
 var (
 	_ net.Conn = &dummyConn{}
 	_ net.Addr = dummyAddr{}
