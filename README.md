@@ -52,7 +52,6 @@ Alternatively, to hack on the plugin code, you can clone it down, then build and
 1. Download or clone this repo: `git clone https://github.com/avkiller/caddy-l4.git`
 2. In the project folder, run `xcaddy` just like you would run `caddy`. For example: `xcaddy list-modules --versions` (you should see the `layer4` modules).
 
-
 ## Writing config
 
 This app supports Caddyfile, but you may also use Caddy's native JSON format to configure it.
