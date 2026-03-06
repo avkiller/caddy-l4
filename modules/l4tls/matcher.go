@@ -167,7 +167,7 @@ func (m *MatchTLS) Match(cx *layer4.Connection) (bool, error) {
 	// also add values to the replacer
 	repl := cx.Context.Value(layer4.ReplacerCtxKey).(*caddy.Replacer)
 	repl.Set("l4.tls.server_name", chi.ServerName)
-	repl.Set("l4.tls.version", chi.Version)
+	repl.Set("l4.tls.version", caddytls.ProtocolName(chi.Version))
 
 	for _, matcher := range m.matchers {
 		// TODO: even though we have more data than the standard lib's
@@ -175,7 +175,7 @@ func (m *MatchTLS) Match(cx *layer4.Connection) (bool, error) {
 		// not accept our own type; but the advantage of this is that
 		// we can reuse TLS connection matchers from the tls app - but
 		// it would be nice if we found a way to give matchers all
-		// the infoz
+		// the information
 		if !matcher.Match(&chi.ClientHelloInfo) {
 			return false, nil
 		}
