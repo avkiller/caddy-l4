@@ -36,6 +36,7 @@ import (
 	_ "github.com/avkiller/caddy-l4/modules/l4tee"
 	_ "github.com/avkiller/caddy-l4/modules/l4throttle"
 	_ "github.com/avkiller/caddy-l4/modules/l4tls"
+	_ "github.com/avkiller/caddy-l4/modules/l4vars"
 	_ "github.com/avkiller/caddy-l4/modules/l4winbox"
 	_ "github.com/avkiller/caddy-l4/modules/l4wireguard"
 	_ "github.com/avkiller/caddy-l4/modules/l4xmpp"
